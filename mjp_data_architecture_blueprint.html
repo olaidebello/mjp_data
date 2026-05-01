@@ -1,0 +1,575 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+.wrap { padding: 0 0 2rem; }
+
+.hero { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 2rem 2rem 1.5rem; margin-bottom: 1.5rem; border: 0.5px solid var(--color-border-tertiary); }
+.hero-eye { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 8px; }
+.hero-title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; line-height: 1.25; }
+.hero-sub { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; max-width: 580px; }
+
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; border: 0.5px solid var(--color-border-tertiary); }
+.stat-n { font-size: 22px; font-weight: 500; line-height: 1; margin-bottom: 4px; }
+.stat-l { font-size: 11px; color: var(--color-text-secondary); letter-spacing: 0.04em; line-height: 1.4; }
+.stat-n.up { color: var(--color-text-success); }
+.stat-n.dn { color: var(--color-text-danger); }
+.stat-n.gold { color: #b8954a; }
+
+.sec-label { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 10px; }
+.sec-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.sec-sub { font-size: 14px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 1.25rem; }
+
+.section { margin-bottom: 2rem; }
+
+/* Nav tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.tab { font-size: 13px; padding: 7px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+.tab:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.tab.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* System flow */
+.flow-row { display: flex; align-items: center; gap: 0; margin-bottom: 1rem; overflow-x: auto; padding-bottom: 4px; }
+.sys-node { border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; min-width: 108px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--color-background-primary); flex-shrink: 0; }
+.sys-node:hover { border-color: #b8954a; background: var(--color-background-secondary); transform: translateY(-1px); }
+.sys-node.sel { border-color: #b8954a; background: var(--color-background-secondary); }
+.sys-icon { font-size: 16px; margin-bottom: 4px; }
+.sys-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+.sys-role { font-size: 11px; color: var(--color-text-secondary); }
+.arr { font-size: 16px; color: var(--color-text-secondary); padding: 0 6px; flex-shrink: 0; }
+
+.node-detail { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1.25rem 1.5rem; border: 0.5px solid var(--color-border-tertiary); margin-bottom: 1rem; animation: fadeIn 0.2s ease; display: none; }
+.node-detail.open { display: block; }
+.nd-label { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: #b8954a; margin-bottom: 6px; }
+.nd-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+.nd-body { font-size: 14px; color: var(--color-text-secondary); line-height: 1.65; margin-bottom: 8px; }
+.nd-gap { font-size: 13px; color: var(--color-text-danger); background: var(--color-background-danger); border-left: 2px solid var(--color-border-danger); padding: 8px 12px; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 8px; }
+
+/* Gap cards */
+.gap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.gap-card { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); overflow: hidden; cursor: pointer; transition: all 0.2s; }
+.gap-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+.gap-head { padding: 12px 16px; background: var(--color-background-danger); border-bottom: 0.5px solid var(--color-border-danger); }
+.gap-head h4 { font-size: 13px; font-weight: 500; color: var(--color-text-danger); }
+.gap-sev { display: inline-block; font-size: 10px; letter-spacing: 0.1em; padding: 2px 7px; border-radius: 10px; margin-top: 4px; font-weight: 500; }
+.sev-h { background: var(--color-background-danger); color: var(--color-text-danger); }
+.gap-body { padding: 12px 16px; background: var(--color-background-primary); }
+.gap-body p { font-size: 13px; color: var(--color-text-secondary); line-height: 1.55; margin-bottom: 8px; }
+.fix-tag { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 10px; background: var(--color-background-success); color: var(--color-text-success); font-weight: 500; }
+.rev-tag { display: inline-block; font-size: 12px; font-weight: 500; color: var(--color-text-success); margin-bottom: 6px; }
+
+/* Revenue chart */
+.rev-bars { display: flex; flex-direction: column; gap: 16px; margin-bottom: 1.5rem; }
+.rev-bar-row { display: flex; align-items: center; gap: 12px; }
+.rev-bar-label { font-size: 13px; color: var(--color-text-secondary); min-width: 110px; text-align: right; }
+.rev-bar-track { flex: 1; height: 32px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); overflow: hidden; position: relative; border: 0.5px solid var(--color-border-tertiary); }
+.rev-bar-fill { height: 100%; border-radius: var(--border-radius-md); display: flex; align-items: center; padding-left: 10px; font-size: 12px; font-weight: 500; transition: width 1s ease; }
+.bar-2024 { background: var(--color-background-info); color: var(--color-text-info); }
+.bar-2025 { background: var(--color-background-success); color: var(--color-text-success); }
+.bar-2026 { background: var(--color-background-danger); color: var(--color-text-danger); }
+.bar-target { background: #f0e6cc; color: #7a6030; }
+.rev-bar-val { font-size: 13px; font-weight: 500; color: var(--color-text-primary); min-width: 60px; }
+
+/* Impact table */
+.imp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.imp-table th { text-align: left; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-secondary); padding: 8px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); font-weight: 500; }
+.imp-table td { padding: 14px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; color: var(--color-text-secondary); line-height: 1.5; }
+.imp-table tr:hover td { background: var(--color-background-secondary); }
+.imp-table .fix-name { font-weight: 500; color: var(--color-text-primary); display: block; margin-bottom: 3px; }
+.imp-num { font-size: 18px; font-weight: 500; color: var(--color-text-success); }
+.imp-num.amber { color: #b8954a; }
+.total-row td { background: var(--color-background-secondary); font-weight: 500; color: var(--color-text-primary); }
+.total-row .imp-num { font-size: 22px; }
+
+/* Partner flow */
+.psteps { display: flex; flex-direction: column; gap: 0; position: relative; }
+.pstep { display: flex; gap: 16px; padding: 16px 0; cursor: pointer; }
+.pstep:hover .pstep-body { background: var(--color-background-secondary); }
+.pstep-num { width: 36px; height: 36px; border-radius: 50%; background: var(--color-background-secondary); border: 0.5px solid var(--color-border-secondary); color: var(--color-text-primary); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; transition: all 0.2s; position: relative; z-index: 1; }
+.pstep:hover .pstep-num { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+.pstep-body { flex: 1; border-radius: var(--border-radius-md); padding: 10px 14px; transition: background 0.2s; }
+.pstep-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+.pstep-sys { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #b8954a; margin-bottom: 5px; }
+.pstep-desc { font-size: 13px; color: var(--color-text-secondary); line-height: 1.55; }
+.pstep-gap { display: none; margin-top: 8px; font-size: 12px; color: var(--color-text-danger); background: var(--color-background-danger); border-left: 2px solid var(--color-border-danger); padding: 6px 10px; border-radius: 0 4px 4px 0; }
+.pstep-gap.show { display: block; }
+
+/* Vision */
+.vision-block { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 2rem 2rem 1.5rem; border: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.5rem; position: relative; }
+.vision-quote { font-size: 40px; line-height: 1; color: #b8954a; opacity: 0.3; position: absolute; top: 12px; left: 20px; font-family: var(--font-serif); }
+.vision-text { font-family: var(--font-serif); font-size: 16px; line-height: 1.7; color: var(--color-text-primary); padding-left: 12px; font-style: italic; }
+.vision-attr { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: #b8954a; margin-top: 12px; }
+
+/* Wink dashboard preview */
+.wink-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 1rem; }
+.wink-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+.wink-card-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-secondary); margin-bottom: 6px; }
+.wink-card-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.wink-card-sub { font-size: 12px; color: var(--color-text-secondary); }
+.wink-card-val.up { color: var(--color-text-success); }
+.wink-card-val.dn { color: var(--color-text-danger); }
+
+/* Phase timeline */
+.phases { display: flex; flex-direction: column; gap: 12px; }
+.phase { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); overflow: hidden; }
+.phase-head { padding: 12px 16px; display: flex; align-items: center; gap: 12px; background: var(--color-background-secondary); }
+.phase-num { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
+.phase-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.phase-weeks { font-size: 12px; color: var(--color-text-secondary); margin-left: auto; }
+.phase-body { padding: 12px 16px; background: var(--color-background-primary); }
+.phase-item { font-size: 13px; color: var(--color-text-secondary); padding: 4px 0; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+.phase-item::before { content: '—'; color: #b8954a; flex-shrink: 0; }
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">MJP Electrical — integrated data architecture and revenue impact blueprint</h2>
+
+<div class="hero">
+  <div class="hero-eye">MJP Electrical · Data Architecture Blueprint</div>
+  <div class="hero-title">From five separate tools to one operational engine</div>
+  <div class="hero-sub">A systems-level blueprint for completing the architecture Mark has designed, closing the four critical gaps, and recovering £150k–£310k in year-one revenue — with a clear path from £1M to £2M+.</div>
+</div>
+
+<div class="stat-row">
+  <div class="stat">
+    <div class="stat-n dn">£239k</div>
+    <div class="stat-l">Jan–Apr 2026<br>vs £400k last year</div>
+  </div>
+  <div class="stat">
+    <div class="stat-n gold">£160k</div>
+    <div class="stat-l">Revenue gap<br>year on year</div>
+  </div>
+  <div class="stat">
+    <div class="stat-n up">4 fixes</div>
+    <div class="stat-l">Critical gaps<br>identified</div>
+  </div>
+  <div class="stat">
+    <div class="stat-n up">£2M+</div>
+    <div class="stat-l">Target annual<br>run rate</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('system')">The system</div>
+  <div class="tab" onclick="showTab('gaps')">The four gaps</div>
+  <div class="tab" onclick="showTab('partners')">Partner flow</div>
+  <div class="tab" onclick="showTab('revenue')">Revenue impact</div>
+  <div class="tab" onclick="showTab('roadmap')">Build roadmap</div>
+  <div class="tab" onclick="showTab('vision')">Working system</div>
+</div>
+
+<!-- PANEL: SYSTEM -->
+<div id="panel-system" class="panel active">
+  <div class="sec-label">Stage 1 & 2 — Architecture</div>
+  <div class="sec-title">What an integrated system means for MJP</div>
+  <div class="sec-sub">Each platform owns one domain. Data flows forward — never sideways, never manually. Click any node to see what it owns and where it currently stands.</div>
+
+  <div class="flow-row">
+    <div class="sys-node" onclick="showNode('ghl',this)">
+      <div class="sys-icon">📡</div>
+      <div class="sys-name">GoHighLevel</div>
+      <div class="sys-role">Marketing & comms</div>
+    </div>
+    <div class="arr">→</div>
+    <div class="sys-node" onclick="showNode('sm8',this)">
+      <div class="sys-icon">⚙️</div>
+      <div class="sys-name">ServiceM8</div>
+      <div class="sys-role">Operations hub</div>
+    </div>
+    <div class="arr">→</div>
+    <div class="sys-node" onclick="showNode('burdi',this)">
+      <div class="sys-icon">📦</div>
+      <div class="sys-name">Burdi</div>
+      <div class="sys-role">Materials & suppliers</div>
+    </div>
+    <div class="arr">→</div>
+    <div class="sys-node" onclick="showNode('xero',this)">
+      <div class="sys-icon">📋</div>
+      <div class="sys-name">Xero</div>
+      <div class="sys-role">Compliance ledger</div>
+    </div>
+    <div class="arr">→</div>
+    <div class="sys-node" onclick="showNode('wink',this)">
+      <div class="sys-icon">📊</div>
+      <div class="sys-name">Wink</div>
+      <div class="sys-role">Reporting truth</div>
+    </div>
+  </div>
+
+  <div id="nd-ghl" class="node-detail">
+    <div class="nd-label">GoHighLevel — marketing engine</div>
+    <div class="nd-title">Owns: leads, nurture, comms, routing, reputation</div>
+    <div class="nd-body">Every customer enquiry enters here. GHL qualifies it and routes through one of three pathways — Urgent fires immediately to SM8, Core goes direct, VIP books a consultation first. GHL also owns post-job review requests and unconverted quote follow-up sequences. It does not touch operations, invoicing, or reporting.</div>
+    <div class="nd-gap">Current gap: The GHL → SM8 Make automation is partially built. Manual intervention is filling the gap between lead qualification and job card creation. This is the first and most critical fix.</div>
+  </div>
+  <div id="nd-sm8" class="node-detail">
+    <div class="nd-label">ServiceM8 — operational core</div>
+    <div class="nd-title">Owns: jobs, scheduling, QM, quotes, invoices, time logs</div>
+    <div class="nd-body">Every job card lives here from creation to completion. Partners receive jobs, complete QM checklists, raise quotes, invoice onsite, and log time. Scheduling — diary management, capacity rules, engineer allocation — should be fully controlled from SM8 by the office, not by engineers in the field.</div>
+    <div class="nd-gap">Current gap: Scheduling rules and job-type blocking are not configured. Engineers are self-scheduling. This creates white space, uneven utilisation, and no office visibility of diary capacity.</div>
+  </div>
+  <div id="nd-burdi" class="node-detail">
+    <div class="nd-label">Burdi — materials & supplier engine</div>
+    <div class="nd-title">Owns: POs, supplier invoices, partner materials accounts, cost allocation</div>
+    <div class="nd-body">Every material purchase flows through Burdi. Partners raise POs using their Partner Order Code plus SM8 job number. Burdi matches the supplier invoice to the PO, allocates cost to the correct job and partner, then pushes the bill to Xero and costs to Wink. The job-linking rule is what makes financial reporting accurate.</div>
+    <div class="nd-gap">Current gap: Missing job numbers on POs break the Burdi→Xero→Wink cost flow entirely. The Red Flag Report must be live and actioned daily. Without it, margin leakage is invisible.</div>
+  </div>
+  <div id="nd-xero" class="node-detail">
+    <div class="nd-label">Xero — compliance only</div>
+    <div class="nd-title">Owns: VAT, CIS, payroll, bank reconciliation, statutory accounts</div>
+    <div class="nd-body">Xero receives from SM8 (invoices), Burdi (bills), Dext (expenses), and Monzo (bank). It processes CIS, handles VAT, and produces statutory accounts. It does not produce business intelligence — that is Wink's job. Keeping Xero as a compliance-only ledger is architecturally correct and must remain so.</div>
+  </div>
+  <div id="nd-wink" class="node-detail">
+    <div class="nd-label">Wink — single reporting truth</div>
+    <div class="nd-title">Owns: all KPIs, dashboards, partner P&L, job profitability, attribution</div>
+    <div class="nd-body">Wink is the CEO dashboard. It pulls from every system and produces sales KPIs, partner leaderboards, financial P&L, category profitability, marketing ROI, and the Red Flag Report. When fully live, Mark can see the profit on every job, which partners are performing, and which lead sources convert — in real time, without a spreadsheet.</div>
+    <div class="nd-gap">Current gap: Wink is showing no data in the audit view. The data pipelines from all four upstream systems are not yet flowing correctly. The reporting layer exists but the pipes have not been built. This is the sprint's core deliverable.</div>
+  </div>
+</div>
+
+<!-- PANEL: GAPS -->
+<div id="panel-gaps" class="panel">
+  <div class="sec-label">Current state assessment</div>
+  <div class="sec-title">Four gaps between design and reality</div>
+  <div class="sec-sub">The architecture is sound. The distance between the documented design and a fully working system is where the £160k revenue shortfall is happening. Click any card to expand.</div>
+
+  <div class="gap-grid">
+    <div class="gap-card" onclick="toggleGapDetail('g1')">
+      <div class="gap-head">
+        <h4>Gap 1 — GHL → SM8 handoff broken</h4>
+        <div><span class="gap-sev sev-h">High severity · Direct revenue loss</span></div>
+      </div>
+      <div class="gap-body">
+        <div class="rev-tag">↑ £54,000/yr recoverable</div>
+        <p>The Make automation connecting GHL lead qualification to SM8 job card creation is partially built or failing silently. Every failed handoff is a lead that depends on manual intervention — and many are being lost.</p>
+        <span class="fix-tag">Make rebuild · Full field mapping · Error alerts</span>
+      </div>
+    </div>
+    <div class="gap-card" onclick="toggleGapDetail('g2')">
+      <div class="gap-head">
+        <h4>Gap 2 — Quote conversion dead zone</h4>
+        <div><span class="gap-sev sev-h">High severity · Direct revenue loss</span></div>
+      </div>
+      <div class="gap-body">
+        <div class="rev-tag">↑ £100,000/yr recoverable</div>
+        <p>No automated follow-up exists for unconverted quotes. Quotes not closed onsite enter a dead zone — no SMS, no email, no systematic chase. Revenue is leaking silently from every unconverted quote.</p>
+        <span class="fix-tag">GHL automation · SM8 webhook · Wink tracking</span>
+      </div>
+    </div>
+    <div class="gap-card" onclick="toggleGapDetail('g3')">
+      <div class="gap-head">
+        <h4>Gap 3 — Engineer-led scheduling</h4>
+        <div><span class="gap-sev sev-h">High severity · Direct revenue loss</span></div>
+      </div>
+      <div class="gap-body">
+        <div class="rev-tag">↑ £156,000/yr recoverable</div>
+        <p>Scheduling has no stage in the architecture documents. Engineers are self-scheduling — creating white space, uneven utilisation, and no office visibility. The office cannot see or manage what it cannot control.</p>
+        <span class="fix-tag">SM8 capacity rules · Diary ownership → office · Wink utilisation</span>
+      </div>
+    </div>
+    <div class="gap-card" onclick="toggleGapDetail('g4')">
+      <div class="gap-head">
+        <h4>Gap 4 — Wink has no live data</h4>
+        <div><span class="gap-sev sev-h">High severity · Multiplier on all gaps</span></div>
+      </div>
+      <div class="gap-body">
+        <div class="rev-tag">Decision-making is blind without this</div>
+        <p>Wink is showing no data across all integrations. The reporting layer exists but the data pipelines from GHL, SM8, Burdi, and Xero are not flowing into it. All decisions are currently being made without the intelligence the system was designed to provide.</p>
+        <span class="fix-tag">Build data pipelines · Validate feeds · Activate Red Flag Report</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: PARTNERS -->
+<div id="panel-partners" class="panel">
+  <div class="sec-label">Stage 4 — Partner workflow</div>
+  <div class="sec-title">How partners connect to the system</div>
+  <div class="sec-sub">Partners are revenue generators, compliance owners, and data contributors. Every step either feeds the system cleanly or creates a gap. Click each step to reveal the current gap.</div>
+
+  <div class="psteps">
+    <div class="pstep" onclick="toggleStep(this)">
+      <div class="pstep-num">1</div>
+      <div class="pstep-body">
+        <div class="pstep-title">Job received from SM8</div>
+        <div class="pstep-sys">ServiceM8</div>
+        <div class="pstep-desc">Partner receives a fully scoped job card — location, category, customer details, scope. Office controls dispatch. Partner does not self-allocate.</div>
+        <div class="pstep-gap">Gap: Engineers currently self-schedule. Job cards may lack full scope if GHL→SM8 handoff is incomplete. Office has no real-time visibility.</div>
+      </div>
+    </div>
+    <div class="pstep" onclick="toggleStep(this)">
+      <div class="pstep-num">2</div>
+      <div class="pstep-body">
+        <div class="pstep-title">QM checklist completed onsite</div>
+        <div class="pstep-sys">ServiceM8</div>
+        <div class="pstep-desc">Partner completes QM checklist — photos, test sheets (EICR/SICR/CU/EV), risk notes, category-specific tasks. Office reviews before job closes.</div>
+        <div class="pstep-gap">Gap: QM compliance varies by partner with no systematic enforcement. Wink compliance scoring is not yet active.</div>
+      </div>
+    </div>
+    <div class="pstep" onclick="toggleStep(this)">
+      <div class="pstep-num">3</div>
+      <div class="pstep-body">
+        <div class="pstep-title">Materials purchased via Burdi</div>
+        <div class="pstep-sys">Burdi</div>
+        <div class="pstep-desc">Partner raises PO in Burdi with Partner Order Code and SM8 job number. Burdi matches supplier invoice and allocates cost to job automatically.</div>
+        <div class="pstep-gap">Gap: Missing job numbers on POs break the entire cost flow to Xero and Wink. This is the single biggest financial risk in the system.</div>
+      </div>
+    </div>
+    <div class="pstep" onclick="toggleStep(this)">
+      <div class="pstep-num">4</div>
+      <div class="pstep-body">
+        <div class="pstep-title">Quote raised and converted</div>
+        <div class="pstep-sys">ServiceM8 + GoHighLevel</div>
+        <div class="pstep-desc">Partner raises quote in SM8. Seeks onsite approval. If not approved, SM8 triggers GHL follow-up sequence at 24h, 48h, and 5 days.</div>
+        <div class="pstep-gap">Gap: The GHL follow-up sequence does not exist. Unconverted quotes enter a dead zone. Highest single revenue impact gap across the whole system.</div>
+      </div>
+    </div>
+    <div class="pstep" onclick="toggleStep(this)">
+      <div class="pstep-num">5</div>
+      <div class="pstep-body">
+        <div class="pstep-title">Invoice and payment</div>
+        <div class="pstep-sys">ServiceM8 → Xero</div>
+        <div class="pstep-desc">Partner invoices onsite including labour, materials, and MJP margins. Takes payment through SM8. Invoice auto-syncs to Xero overnight.</div>
+        <div class="pstep-gap">Gap: If partners are not invoicing through SM8 consistently, the Xero sync breaks and payment data in Wink is unreliable.</div>
+      </div>
+    </div>
+    <div class="pstep" onclick="toggleStep(this)">
+      <div class="pstep-num">6</div>
+      <div class="pstep-body">
+        <div class="pstep-title">Partner earnings calculated</div>
+        <div class="pstep-sys">Wink</div>
+        <div class="pstep-desc">Wink calculates full partner P&L: points earnings (£20–£22/point by tier), 10% quote commission, 10% materials margin share. Full monthly P&L with CIS and net payout.</div>
+        <div class="pstep-gap">Gap: Earnings accuracy depends on SM8, Burdi, and Xero all being clean. Any upstream gap creates discrepancies that erode partner trust.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: REVENUE -->
+<div id="panel-revenue" class="panel">
+  <div class="sec-label">Financial case</div>
+  <div class="sec-title">The revenue case for fixing the system</div>
+  <div class="sec-sub">Current trajectory vs what becomes possible when the four gaps are closed. Every figure is conservative and based on documented MJP architecture and field service industry benchmarks.</div>
+
+  <div class="section">
+    <div class="sec-label" style="margin-bottom:8px">Year on year — Jan to April</div>
+    <div class="rev-bars">
+      <div class="rev-bar-row">
+        <div class="rev-bar-label">Jan–Apr 2024</div>
+        <div class="rev-bar-track"><div class="rev-bar-fill bar-2024" style="width:84%">£338,045</div></div>
+        <div class="rev-bar-val">£338k</div>
+      </div>
+      <div class="rev-bar-row">
+        <div class="rev-bar-label">Jan–Apr 2025</div>
+        <div class="rev-bar-track"><div class="rev-bar-fill bar-2025" style="width:100%">£400,000+</div></div>
+        <div class="rev-bar-val">£400k+</div>
+      </div>
+      <div class="rev-bar-row">
+        <div class="rev-bar-label">Jan–Apr 2026</div>
+        <div class="rev-bar-track"><div class="rev-bar-fill bar-2026" style="width:60%">£239,000+</div></div>
+        <div class="rev-bar-val">£239k</div>
+      </div>
+      <div class="rev-bar-row">
+        <div class="rev-bar-label">Target 2026 (full yr)</div>
+        <div class="rev-bar-track"><div class="rev-bar-fill bar-target" style="width:100%">£2,000,000+</div></div>
+        <div class="rev-bar-val">£2M+</div>
+      </div>
+    </div>
+  </div>
+
+  <table class="imp-table">
+    <thead>
+      <tr>
+        <th>Fix</th>
+        <th>Mechanism</th>
+        <th>Annual impact</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="fix-name">GHL → SM8 handoff</span>Closing the lead-to-job gap</td>
+        <td>3 recovered leads/week at £350 average job value. Even partial recovery of failed Make handoffs adds immediate revenue.</td>
+        <td><div class="imp-num">£54k+</div></td>
+      </tr>
+      <tr>
+        <td><span class="fix-name">Quote conversion follow-up</span>Automating the unconverted chase</td>
+        <td>Moving conversion from 50% to 65% on 50 weekly quotes = 7–8 additional jobs per week from existing pipeline. No new marketing required.</td>
+        <td><div class="imp-num">£100k+</div></td>
+      </tr>
+      <tr>
+        <td><span class="fix-name">Scheduling rules & utilisation</span>Office-controlled diary management</td>
+        <td>One additional completed job per engineer per week across 10 partners at £300 average = 520 extra jobs per year.</td>
+        <td><div class="imp-num">£156k+</div></td>
+      </tr>
+      <tr>
+        <td><span class="fix-name">Wink live reporting</span>Data-driven category and partner decisions</td>
+        <td>Redirecting marketing to highest-margin categories, replacing underperforming partners based on real P&L data. Compounds all other gains.</td>
+        <td><div class="imp-num amber">Multiplier</div></td>
+      </tr>
+      <tr class="total-row">
+        <td>Total conservative estimate</td>
+        <td style="font-size:13px;">Revenue already in MJP's pipeline that the current system is losing. Not growth marketing — recovered revenue.</td>
+        <td><div class="imp-num">£150k–£310k</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:3px;">Year 1, conservative basis</div></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:1rem; padding:12px 16px; background:var(--color-background-secondary); border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-tertiary);">
+    <div style="font-size:13px; color:var(--color-text-secondary); line-height:1.6;"><strong style="color:var(--color-text-primary); font-weight:500;">The sprint pays for itself in the first quarter.</strong> Every month the system gaps remain open is a month of recoverable revenue that doesn't come back. The £160k Jan–Apr variance is not a market problem — it is a systems problem with a defined fix.</div>
+  </div>
+</div>
+
+<!-- PANEL: ROADMAP -->
+<div id="panel-roadmap" class="panel">
+  <div class="sec-label">Sprint plan</div>
+  <div class="sec-title">Four phases. Six weeks. One working system.</div>
+  <div class="sec-sub">Fixes are sequenced by revenue impact and dependency. Nothing in Phase 2 gets built until Phase 1 is stable. Wink comes last because it is only as good as the data flowing into it.</div>
+
+  <div class="phases">
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num" style="color:var(--color-text-danger)">Phase 1</div>
+        <div class="phase-title">Foundation — close the critical handoff</div>
+        <div class="phase-weeks">Weeks 1–2</div>
+      </div>
+      <div class="phase-body">
+        <div class="phase-item">Audit Make execution history — count and categorise all GHL→SM8 failures</div>
+        <div class="phase-item">Rebuild Make scenario with full field mapping for all three pathways (Urgent / Core / VIP)</div>
+        <div class="phase-item">Implement error handling — failed job cards trigger Slack alert to ops manager, reviewed daily</div>
+        <div class="phase-item">Standardise GHL tag taxonomy and field names across all workflows</div>
+        <div class="phase-item">Merge duplicate contacts and establish entry rules to prevent recurrence</div>
+        <div class="phase-item">Implement call tracking numbers per source — website, billboard, referral, Google profile</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num" style="color:#b8954a">Phase 2</div>
+        <div class="phase-title">Operations — fix scheduling and conversion</div>
+        <div class="phase-weeks">Weeks 3–4</div>
+      </div>
+      <div class="phase-body">
+        <div class="phase-item">Configure SM8 scheduling rules — job-type blocking, capacity limits, geographic zones</div>
+        <div class="phase-item">Transfer diary ownership from engineers to office — establish booking protocol</div>
+        <div class="phase-item">Build SM8 webhook for unconverted quote status → GHL follow-up sequence</div>
+        <div class="phase-item">Activate GHL automation: 24h SMS, 48h email, 5-day final follow-up with expiry</div>
+        <div class="phase-item">Activate SM8 → GHL job completion trigger for review request sequence</div>
+        <div class="phase-item">Validate Burdi job number compliance — enforce as mandatory, activate Red Flag Report</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num" style="color:var(--color-text-info)">Phase 3</div>
+        <div class="phase-title">Intelligence — make Wink work</div>
+        <div class="phase-weeks">Weeks 5–6</div>
+      </div>
+      <div class="phase-body">
+        <div class="phase-item">Validate all four Wink data feeds — GHL attribution, SM8 revenue, Burdi costs, Xero financials</div>
+        <div class="phase-item">Build and activate partner P&L dashboard with earnings leaderboard</div>
+        <div class="phase-item">Activate utilisation dashboard — engineer performance by week and category</div>
+        <div class="phase-item">Activate Red Flag Report — daily exception alerts to ops manager</div>
+        <div class="phase-item">Implement UTM parameter capture across all GHL forms and landing pages</div>
+        <div class="phase-item">Produce first live baseline Wink report — revenue, utilisation, conversion, attribution</div>
+      </div>
+    </div>
+    <div class="phase">
+      <div class="phase-head">
+        <div class="phase-num" style="color:var(--color-text-success)">Phase 4</div>
+        <div class="phase-title">Ongoing — own and optimise</div>
+        <div class="phase-weeks">Ongoing</div>
+      </div>
+      <div class="phase-body">
+        <div class="phase-item">Weekly Wink review — utilisation, conversion, partner performance, Red Flag exceptions</div>
+        <div class="phase-item">Monthly partner performance coaching using SM8 outstanding tasks and Wink P&L</div>
+        <div class="phase-item">Partner onboarding system — training videos, first-job walkthrough, Burdi compliance checklist</div>
+        <div class="phase-item">Quarterly system audit against the data architecture document</div>
+        <div class="phase-item">Marketing ROI review — lead source performance, campaign attribution, billboard ROI</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL: VISION -->
+<div id="panel-vision" class="panel">
+  <div class="sec-label">What success looks like</div>
+  <div class="sec-title">A fully working system at MJP</div>
+  <div class="sec-sub">This is what operations look like when all five systems are live, connected, and running under one coordinated engine. What Mark designed — completed and owned.</div>
+
+  <div class="vision-block">
+    <div class="vision-quote">"</div>
+    <div class="vision-text">A customer calls at 7pm with an electrical fault. GHL qualifies it as Pathway 1 — Urgent. An SM8 job card is created automatically. The nearest available partner is dispatched based on diary rules — not a phone call, not a text chain. They arrive, complete the QM checklist, raise the invoice onsite, take payment through SM8. Burdi captures the materials cost against the job number. Xero syncs the invoice overnight. By the next morning Wink shows the job revenue, the materials margin, the partner's earnings, and the CIS liability — without a single person manually touching a spreadsheet.</div>
+    <div class="vision-attr">The system you designed — completed and owned.</div>
+  </div>
+
+  <div class="sec-label" style="margin-bottom:10px">What Mark sees in Wink every morning</div>
+  <div class="wink-grid">
+    <div class="wink-card">
+      <div class="wink-card-label">Weekly revenue</div>
+      <div class="wink-card-val up">£38,400</div>
+      <div class="wink-card-sub">+12% vs last week · 96 jobs completed</div>
+    </div>
+    <div class="wink-card">
+      <div class="wink-card-label">Quote conversion rate</div>
+      <div class="wink-card-val up">67%</div>
+      <div class="wink-card-sub">Up from 50% · 34 quotes converted this week</div>
+    </div>
+    <div class="wink-card">
+      <div class="wink-card-label">Engineer utilisation</div>
+      <div class="wink-card-val up">84%</div>
+      <div class="wink-card-sub">White space reduced · 2 engineers at capacity</div>
+    </div>
+    <div class="wink-card">
+      <div class="wink-card-label">Red flag exceptions</div>
+      <div class="wink-card-val dn">3</div>
+      <div class="wink-card-sub">2 missing PO job numbers · 1 unmatched invoice</div>
+    </div>
+    <div class="wink-card">
+      <div class="wink-card-label">Top partner this week</div>
+      <div class="wink-card-val" style="font-size:16px;">Partner A</div>
+      <div class="wink-card-sub">£4,200 revenue · 78% conversion · 12 jobs</div>
+    </div>
+    <div class="wink-card">
+      <div class="wink-card-label">Billboard lead ROI</div>
+      <div class="wink-card-val up">£8.40</div>
+      <div class="wink-card-sub">Revenue per £1 of billboard spend · 24 attributed leads</div>
+    </div>
+  </div>
+
+  <div style="margin-top:1.5rem; padding:16px 20px; background:var(--color-background-secondary); border-radius:var(--border-radius-lg); border:0.5px solid var(--color-border-tertiary);">
+    <div style="font-size:14px; font-weight:500; color:var(--color-text-primary); margin-bottom:6px;">The one sentence that matters</div>
+    <div style="font-size:14px; color:var(--color-text-secondary); line-height:1.7; font-style:italic; font-family:var(--font-serif);">"You built the right system. Nobody built the pipes. That is what we are here to fix."</div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+
+function showNode(id, el) {
+  document.querySelectorAll('.node-detail').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.sys-node').forEach(n => n.classList.remove('sel'));
+  const detail = document.getElementById('nd-' + id);
+  if (detail) { detail.classList.add('open'); el.classList.add('sel'); }
+}
+
+function toggleStep(el) {
+  const gap = el.querySelector('.pstep-gap');
+  if (gap) gap.classList.toggle('show');
+}
+
+function toggleGapDetail(id) {}
+</script>
